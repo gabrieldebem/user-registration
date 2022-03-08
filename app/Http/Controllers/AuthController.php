@@ -11,8 +11,9 @@ class AuthController extends Controller
 {
     public function issueToken(Request $request): JsonResponse
     {
-        $user = User::where('email', $request->input('username'))
+        $user = User::whereEmail($request->input('username'))
             ->firstOrFail();
+
         if (! Hash::check($request->input('password'), $user->password)){
             throw new \Exception('Invalid credentials.', 401);
         }

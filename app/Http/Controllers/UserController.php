@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Services\UserService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
@@ -23,9 +24,13 @@ class UserController extends Controller
      * Display a listing of the resource.
      *
      * @return JsonResponse
+     * @throws Exception
      */
     public function index(): JsonResponse
     {
+        if (! isSuperUser()) {
+            throw new Exception("Não autorizado.", 401);
+        }
         $user = QueryBuilder::for(User::class)
             ->allowedFilters(['first_name', 'cpf'])
             ->allowedSorts('birth_date', 'created_at')
@@ -62,23 +67,37 @@ class UserController extends Controller
      *
      * @param User $user
      * @return JsonResponse
+     * @throws Exception
      */
     public function show(User $user): JsonResponse
     {
+        if (! isSuperUser()) {
+            throw new Exception("Não autorizado.", 401);
+        }
         return response()->json($user);
+    }
+
+    /**
+     * Return the current logged account.
+     *
+     * @return JsonResponse
+     */
+    public function me(): JsonResponse
+    {
+        return response()->json(currentUser());
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param UpdateUserRequest $request
-     * @param User $user
      * @return JsonResponse
+     * @throws Exception
      */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request): JsonResponse
     {
         $updatedUser = $this->userService
-            ->setUser($user)
+            ->setUser(currentUser())
             ->update($request->all())
             ->getUser();
 
@@ -88,13 +107,12 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param User $user
      * @return Response
      * @throws Throwable
      */
-    public function destroy(User $user): Response
+    public function destroy(): Response
     {
-        $user->deleteOrFail();
+        currentUser()->deleteOrFail();
 
         return response()->noContent();
     }

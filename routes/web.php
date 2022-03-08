@@ -14,7 +14,8 @@ use App\Http\Livewire\Counter;
 |
 */
 
-Route::get('/a', Counter::class)->name('counter');
+Route::get('/users', \App\Http\Livewire\User::class)->name('counter');
+Route::get('/signup', \App\Http\Livewire\Signup::class)->name('signup');
 Route::get('/', function () {
     return view('welcome');
 });

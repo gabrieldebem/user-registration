@@ -37,7 +37,6 @@ class UserAddressController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param User $user
      * @param StoreUserAddressRequest $request
      * @return JsonResponse
      */
@@ -50,7 +49,7 @@ class UserAddressController extends Controller
                 address: $request->input('address'),
                 number: $request->input('number'),
                 district: $request->input('district'),
-                city: $request->input('district'),
+                city: $request->input('city'),
                 state: State::from($request->input('state')),
                 complement: $request->input('complement') ?? null
             )->getAddress();
